@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import 'dart:convert';
 import 'dart:developer';
 
@@ -15,16 +19,21 @@ class MyApp extends StatelessWidget {
       title: 'Flutter QR Code Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        appBarTheme: AppBarTheme(
+          color: Color(0xFF37251B), // Set app bar color
+          elevation: 0, // Remove app bar elevation
+        ),
       ),
-      home: HomePage(),
+      home: LoginPage(),
       routes: {
         '/qr': (context) => qr(),
         '/giris_sayfasi' : (context) => LoginPage(),
         '/kayit_sayfasi':(context)=> RegisterPage(),
-        '/anasayfa':(context)=>HomePage(),
-        '/menu':(context)=>menu(),
-        '/profil':(context)=>profil(),
-        '/cafeekle':(context)=>cafeekle()
+        '/anasayfa':(context)=>Cafelerim(),
+        '/menu':(context)=>MenuScreen(),
+        '/profil':(context)=>ProfilePage(),
+        '/cafebul':(context)=>CafeBulSayfasi(),
+        '/cafeekleme':(context)=>CafeEklemeSayfasi()
       },
     );
   }
@@ -53,9 +62,14 @@ class _LoginPageState extends State<LoginPage> {
     print(jsonDecode(response.body)['token']);
 
     if (jsonDecode(response.body)['token'] != null) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('userId', jsonDecode(response.body)['user']['_id']);
+      await prefs.setString('userName', jsonDecode(response.body)['user']['userName']);
+      await prefs.setString('userMail', jsonDecode(response.body)['user']['userMail']);
+
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => HomePage()),
+        MaterialPageRoute(builder: (context) => Cafelerim()),
       );
     }
     else {
@@ -81,44 +95,97 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    Color backgroundColor = Color(int.parse('0xFF37251b'));
+    Color appBarColor = backgroundColor;
+    Color squareColor = Color(int.parse('0xFF4F3E2E'));
+
+    final buttonStyle = ElevatedButton.styleFrom(
+      primary: Color(int.parse('0xFF505050')),
+      onPrimary: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.0),
+        side: BorderSide(
+          color: Color(int.parse('0xFF4f3e2e')),
+          width: 4.0,
+        ),
+      ),
+      minimumSize: Size(200.0, 50.0),
+    );
+
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: appBarColor,
+        leading: Image.asset('cafecode.png'), // Add the image asset here
         title: Text('Giriş Sayfası'),
       ),
+      
+      backgroundColor: backgroundColor,
       body: Center(
         child: Padding(
           padding: EdgeInsets.all(16.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              TextField(
-                controller: emailController,
-                decoration: InputDecoration(
-                  labelText: 'E-posta',
+              Container(
+                width: 200.0,
+                child: TextField(
+                  controller: emailController,
+                  decoration: InputDecoration(
+                    labelText: 'E-posta',
+                    filled: true,
+                    fillColor: squareColor,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                  ),
                 ),
               ),
               SizedBox(height: 16),
-              TextField(
-                controller: passwordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: 'Şifre',
+              Container(
+                width: 200.0,
+                child: TextField(
+                  controller: passwordController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: 'Şifre',
+                    filled: true,
+                    fillColor: squareColor,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                  ),
                 ),
               ),
               SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () => loginUser(context),
                 child: Text('Giriş Yap'),
+                style: buttonStyle,
               ),
               SizedBox(height: 16),
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => RegisterPage()),
-                  );
-                },
-                child: Text('Kayıt Ol'),
+              Container(
+                width: 200.0,
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => RegisterPage()),
+                    );
+                  },
+                  child: Text('Kayıt Ol'),
+                  style: TextButton.styleFrom(
+                    primary: Colors.white,
+                    backgroundColor: Color(int.parse('0xFF505050')),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                      side: BorderSide(
+                        color: Color(int.parse('0xFFD2C1B1')),
+                        width: 4.0,
+                      ),
+                    ),
+                    minimumSize: Size(200.0, 50.0),
+                  ),
+                ),
               ),
             ],
           ),
@@ -127,8 +194,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-
-
 
 // uygulamaya kayıt olma sayfası
 class RegisterPage extends StatefulWidget {
@@ -201,10 +266,15 @@ class _RegisterScreenState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
+    Color backgroundColor = Color(int.parse('0xFF37251b')); // Background color
+    Color appBarColor = backgroundColor; // App bar color
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Kayıt Sayfası'),
+        backgroundColor: appBarColor,
       ),
+      backgroundColor: backgroundColor,
       body: Center(
         child: Padding(
           padding: EdgeInsets.all(16.0),
@@ -252,175 +322,157 @@ class _RegisterScreenState extends State<RegisterPage> {
   }
 }
 
-class HomePage extends StatefulWidget {
+class Cafelerim extends StatefulWidget {
   @override
-  AnaSayfa createState() => AnaSayfa();
+  _CafelerimState createState() => _CafelerimState();
 }
 
-
-class AnaSayfa extends State<HomePage> {
-  List<String> cafeNames = ['Cafe A', 'Cafe B', 'Cafe C', 'Cafe D'];
-  List<IconData> cafeIcons = [
-    Icons.coffee,
-    Icons.local_cafe,
-    Icons.restaurant,
-    Icons.fastfood
-  ];
-  List<IconData> visibleIcons = [Icons.coffee,
-    Icons.local_cafe,
-    Icons.restaurant,
-    Icons.fastfood];
-
-  String searchText = '';
-
-  bool showErrorMessage = false;
-
-  void filterIcons() {
-    visibleIcons.clear();
-    for (int i = 0; i < cafeNames.length; i++) {
-      if (cafeNames[i].toLowerCase().contains(searchText.toLowerCase())) {
-        visibleIcons.add(cafeIcons[i]);
-      }
-    }
-    if (visibleIcons.isEmpty) {
-      showErrorMessage = true;
-    } else {
-      showErrorMessage = false;
-    }
-  }
-
+class _CafelerimState extends State<Cafelerim> {
   @override
   Widget build(BuildContext context) {
+    Color backgroundColor = Color(int.parse('0xFF37251b')); // Background color
+
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.brown,
-          centerTitle: true,
-          title: Text(
-            'CAFECODE',
-            style: TextStyle(color: Colors.white),
-          ),
-          leading: IconButton(
-            icon: Icon(Icons.menu, color: Colors.white),
-            onPressed: () {
-              Navigator.pushNamed(context, '/menu');
-            },
-          ),
+      appBar: AppBar(
+        title: const Text('Cafelerim'),
+        backgroundColor: backgroundColor, // Set the app bar color here
+        elevation: 0, // Set the elevation to 0 to remove the shadow
+        leading: IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () {
+            Navigator.pushNamed(context, '/menu');
+          },
         ),
-        body: Container(
-          color: Colors.brown,
-          child: Column(
-            children: [
-              SizedBox(height: 20),
-              Text(
-                'CAFELERİM',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+      ),
+      backgroundColor: backgroundColor,
+        body: GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            childAspectRatio: 1.0,
+            crossAxisSpacing: 6,
+            mainAxisSpacing: 12,
+          ),
+          padding: EdgeInsets.all(10),
+          itemCount: 6, // Replace with the actual number of cafes
+          itemBuilder: (BuildContext context, int index) {
+            String cafeName = 'Cafe ${index + 1}'; // Replace with the actual cafe names
+            return buildCafeIcon(Icons.local_cafe_rounded, '4f3e2e', cafeName);
+          },
+        ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
+        onPressed: () {
+          Navigator.pushNamed(context, '/cafebul');
+        },
+      ),
+    );
+  }
 
+  Widget buildCafeIcon(IconData icon, String hexColor, String cafeName) {
+    Color squareColor = Color(int.parse('0xFF$hexColor'));
+    Color backgroundColor = Color(int.parse('0xFF37251b'));
+
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.pushNamed(context, '/qr');
+        },
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: squareColor,
+                borderRadius: BorderRadius.circular(10),
               ),
-              SizedBox(height: 20),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: TextField(
-                  onChanged: (value) {
-                    setState(() {
-                      searchText = value;
-                      filterIcons();
-                    });
-                  },
-                  decoration: InputDecoration(
-                    hintText: 'CAFE ARA',
-                    hintStyle: TextStyle(color: Colors.grey),
-                  ),
+              width: 80,
+              height: 80,
+              child: Padding(
+                padding: EdgeInsets.all(10),
+                child: Icon(
+                  icon,
+                  size: 60,
+                  color: backgroundColor,
                 ),
               ),
-              SizedBox(height: 20),
-              showErrorMessage
-                  ? Text(
-                'ARADIĞINIZ CAFE BULUNAMADI. LÜTFEN EKLEME SAYFASINA BAKIN',
-                style: TextStyle(color: Colors.white),
-              )
-                  : Wrap(
-                alignment: WrapAlignment.spaceEvenly,
-                children: [
-                  for (int i = 0; i < visibleIcons.length; i++)
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(context, '/qr');
-                      },
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            cafeIcons[i],
-                            color: Colors.white,
-                            size: 98,
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            cafeNames[i],
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-
-
-                    )
-                ],
+            ),
+            const SizedBox(height: 10),
+            Text(
+              cafeName,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
               ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/cafeekle');
-                },
-                child: Text('YENİ CAFE EKLE'),
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.white,
-                  onPrimary: Colors.brown,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
+      ),
     );
   }
 }
 
 //menü sayfası
-class menu extends StatefulWidget {
+class MenuScreen extends StatefulWidget {
   @override
-  MenuScreen createState() => MenuScreen();
+  _MenuScreenState createState() => _MenuScreenState();
 }
 
-class MenuScreen extends State<menu> {
-  final String name="yakup abacı";
-  final String accountNumber="123456";
-  final String profileImagePath="D:\\resim\\resim.png";
+class _MenuScreenState extends State<MenuScreen> {
+  String? userId = '';
+  String? userName = '';
+  String? userSurname = '';
+  String? userMail = '';
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserData();
+  }
+
+  Future<void> fetchUserData() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+
+      // Extract the user data
+      String? id = prefs.getString('userId');
+      String? name = prefs.getString('userName');
+      String? surname = prefs.getString('userSurname');
+      String? email = prefs.getString('userMail');
+
+      setState(() {
+        // Update the state variables
+        userId = id;
+        userName = name;
+        userSurname = surname;
+        userMail = email;
+      });
+    } catch (e) {
+      // Handle network or other errors
+      print('Error fetching user data: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    Color backgroundColor = Color(int.parse('0xFF37251b')); // Background color
+
     return Drawer(
-      backgroundColor: Colors.brown,
+      backgroundColor: backgroundColor,
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
           DrawerHeader(
             decoration: BoxDecoration(
-              color: Colors.brown,
+              color: backgroundColor,
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                CircleAvatar(
-                  backgroundImage: AssetImage(profileImagePath),
-                  radius: 30,
-                ),
                 SizedBox(height: 10),
                 Text(
-                  name,
+                  'İsim: $userName',
                   style: TextStyle(
                     fontSize: 18,
                     color: Colors.white,
@@ -428,7 +480,23 @@ class MenuScreen extends State<menu> {
                 ),
                 SizedBox(height: 5),
                 Text(
-                  'Hesap No: $accountNumber',
+                  'Soyisim: $userSurname',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                  ),
+                ),
+                SizedBox(height: 5),
+                Text(
+                  'Musteri No: $userId',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.white,
+                  ),
+                ),
+                SizedBox(height: 5),
+                Text(
+                  'Mail: $userMail',
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.white,
@@ -469,13 +537,24 @@ class MenuScreen extends State<menu> {
           ),
           ListTile(
             title: Text(
+              'CAFE BUL',
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
+            onTap: () {
+              Navigator.pushNamed(context, '/cafebul');
+            },
+          ),
+          ListTile(
+            title: Text(
               'CAFE EKLE',
               style: TextStyle(
                 color: Colors.white,
               ),
             ),
             onTap: () {
-              Navigator.pushNamed(context, '/cafeekle');
+              Navigator.pushNamed(context, '/cafeekleme');
             },
           ),
           ListTile(
@@ -497,178 +576,246 @@ class MenuScreen extends State<menu> {
 
 //profil sayfası
 
-class profil extends StatefulWidget {
+class ProfilePage extends StatefulWidget {
   @override
-  ProfileScreen createState() => ProfileScreen();
+  _ProfilePageState createState() => _ProfilePageState();
 }
 
-class ProfileScreen extends State<profil> {
-  String name = "yakup";
-  String surname = "abacı";
-  String email = "asd";
-  String password = "123";
+class _ProfilePageState extends State<ProfilePage> {
+  String? userId = '';
+  String? userName = '';
+  String? userMail = '';
 
-  void updateProfile() {
-    setState(() {
-      // TODO: Implement update profile functionality
-      // Update the profile data in database
-      // Show a snackbar to inform user about the update
-    });
+  @override
+  void initState() {
+    super.initState();
+    fetchUserData();
+  }
+
+  Future<void> fetchUserData() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+
+      // Extract the user data
+      String? id = prefs.getString('userId');
+      String? name = prefs.getString('userName');
+      String? email = prefs.getString('userMail');
+
+      setState(() {
+        // Update the state variables
+        userId = id;
+        userName = name;
+        userMail = email;
+      });
+    } catch (e) {
+      // Handle network or other errors
+      print('Error fetching user data: $e');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.brown,
-        appBar: AppBar(
-          backgroundColor: Colors.brown,
-          title: Text(
-            "PROFİLİNİZ",
-            style: TextStyle(
-              color: Colors.black,
+      backgroundColor: Color(0xFF37251B), // Set background color to the desired hex code
+      appBar: AppBar(
+        title: Text('Profil'),
+        centerTitle: true,
+        backgroundColor: Color(0xFF37251B), // Set app bar color to the desired hex code
+        elevation: 0, // Set app bar elevation to 0
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(height: 20), // Added SizedBox to add some space
+          Align(
+            alignment: Alignment.topCenter,
+            child: CircleAvatar(
+              radius: 80,
+              backgroundImage: AssetImage('assets/images/default.jpg'),
             ),
           ),
-          leading: IconButton(
-            icon: Icon(Icons.menu),
-            onPressed: () {
-              Navigator.pushNamed(context, '/menu');
-              // Navigate to MenuScreen
-            },
-          ),
-        ),
-        body: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "ad",
-                style: TextStyle(
-                  color: Colors.white,
+          SizedBox(height: 20), // Added SizedBox to add some space
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'ID: $userId',
+                  style: GoogleFonts.getFont(
+                    'Righteous',
+                    color: Colors.white,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-              ),
-              TextField(
-                decoration: InputDecoration(
-                  hintText: "Adınızı girin",
+                SizedBox(height: 10), // Added SizedBox to add some space
+                Text(
+                  'Name: $userName',
+                  style: GoogleFonts.getFont(
+                    'Righteous',
+                    color: Colors.white,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                onChanged: (value) {
-                  setState(() {
-                    name = value;
-                  });
-                },
-                controller: TextEditingController(text: name),
-              ),
-              SizedBox(height: 16.0),
-              Text(
-                "soyadı",
-                style: TextStyle(
-                  color: Colors.white,
+                SizedBox(height: 10), // Added SizedBox to add some space
+                Text(
+                  'Email: $userMail',
+                  style: GoogleFonts.getFont(
+                    'Righteous',
+                    color: Colors.white,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-              ),
-              TextField(
-                decoration: InputDecoration(
-                  hintText: "Soyadınızı girin",
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    surname = value;
-                  });
-                },
-                controller: TextEditingController(text: surname),
-              ),
-              SizedBox(height: 16.0),
-              Text(
-                "eposta adresi",
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
-              TextField(
-                decoration: InputDecoration(
-                  hintText: "E-posta adresinizi girin",
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    email = value;
-                  });
-                },
-                controller: TextEditingController(text: email),
-              ),
-              SizedBox(height: 16.0),
-              Text(
-                "şifresi",
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
-              TextField(
-                obscureText: true,
-                decoration: InputDecoration(
-                  hintText: "Şifrenizi girin",
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    password = value;
-                  });
-                },
-                controller: TextEditingController(text: password),
-              ),
-              SizedBox(height: 20.0),
-              ElevatedButton(
-                onPressed: () => updateProfile(),
-                child: Text("GÜNCELLE"),
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.green,
-                  onPrimary: Colors.white,
-                ),
-              ),
-            ],
-          ),
-        ),
+              ],
+            ),
+          )
+        ],
+      ),
     );
   }
 }
 
 //cafe ekleme sayfasi
-class cafeekle extends StatefulWidget {
+class CafeEklemeSayfasi extends StatefulWidget {
   @override
-  CafeEklemeSayfasi createState() => CafeEklemeSayfasi();
+  CafeEklemeSayfasiState createState() => CafeEklemeSayfasiState();
 }
 
+class CafeEklemeSayfasiState extends State<CafeEklemeSayfasi> {
+  String cafeName = '';
+  String cafeMail = '';
+  String cafePassword = '';
 
-class CafeEklemeSayfasi extends State<cafeekle> {
-  //const CafeEklemeSayfasi({Key? key}) : super(key: key);
+  final TextEditingController cafeNameController = TextEditingController();
+  final TextEditingController cafePasswordController = TextEditingController();
+  final TextEditingController cafeMailController = TextEditingController();
+
+  Future<void> createCafe(BuildContext context) async {
+    final String cafeName = cafeNameController.text;
+    final String cafePassword = cafePasswordController.text;
+    final String cafeMail = cafeMailController.text;
+
+    final response = await http.post(
+      Uri.parse('http://localhost:3000/api/auth/coffeSignup'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(
+          <String, String>{'coffeName': cafeName, 'coffePassword': cafePassword, 'coffeMail': cafeMail}),
+    );
+
+    log(response.body);
+
+    if (jsonDecode(response.body)['token']) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Başarılı'),
+            content: Text('Cafe başarıyla oluşturuldu.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('Tamam'),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Hata'),
+            content: Text('Cafe oluşturulamadı'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('Tamam'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    Color backgroundColor = Color(int.parse('0xFF37251b')); // Background color
+    Color appBarColor = backgroundColor; // App bar color
+
     return Scaffold(
-        backgroundColor: Colors.brown,
-        appBar: AppBar(
-          backgroundColor: Colors.brown,
-          title: Text(
-            'CAFECODE',
-            style: TextStyle(
-              color: Colors.black,
+      appBar: AppBar(
+        title: Text('Cafe Oluştur'),
+        backgroundColor: appBarColor,
+      ),
+      backgroundColor: backgroundColor,
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              height: 50.0,
+              decoration: BoxDecoration(
+                color: Color(0xFF4F3E2E),
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: TextField(
+                controller: cafeNameController,
+                decoration: InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                  labelText: 'Cafe İsmi',
+                  border: InputBorder.none,
+                ),
+              ),
             ),
-          ),
-          leading: IconButton(
-            icon: Icon(Icons.menu),
-            onPressed: () {
-              Navigator.pushNamed(context, '/menu');
-            },
-          ),
-        ),
-        body: GridView.count(
-          crossAxisCount: 4,
-          children: <Widget>[
-            CafeIcon(ad: 'Cofe 1'),
-            CafeIcon(ad: 'Cofe 2'),
-            CafeIcon(ad: 'Cofe 3'),
-            CafeIcon(ad: 'Cofe 4'),
-            CafeIcon(ad: 'Cofe 5'),
-            CafeIcon(ad: 'Cofe 6'),
+            SizedBox(height: 16),
+            Container(
+              height: 50.0,
+              decoration: BoxDecoration(
+                color: Color(0xFF4F3E2E),
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: TextField(
+                controller: cafeMailController,
+                decoration: InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                  labelText: 'Cafe Mail',
+                  border: InputBorder.none,
+                ),
+              ),
+            ),
+            SizedBox(height: 16),
+            Container(
+              height: 50.0,
+              decoration: BoxDecoration(
+                color: Color(0xFF4F3E2E),
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: TextField(
+                controller: cafePasswordController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                  labelText: 'Cafe Şifre',
+                  border: InputBorder.none,
+                ),
+              ),
+            ),
+            SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => createCafe(context),
+              child: Text('Cafe Oluştur'),
+            ),
           ],
         ),
+      ),
     );
   }
 }
@@ -686,13 +833,15 @@ class CafeIcon extends StatelessWidget {
       },
       child: Column(
         children: [
-          Icon(Icons.local_cafe,
-              size: 64,
-              color: Colors.white),
+          Icon(
+            Icons.local_cafe_rounded,
+            size: 64,
+            color: Colors.white,
+          ),
           SizedBox(height: 20),
           Text(
             ad,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
             ),
           ),
@@ -702,7 +851,79 @@ class CafeIcon extends StatelessWidget {
   }
 }
 
+//cafe bul sayfasi
+class CafeBulSayfasi extends StatefulWidget {
+  @override
+  _CafeBulSayfasiState createState() => _CafeBulSayfasiState();
+}
 
+class _CafeBulSayfasiState extends State<CafeBulSayfasi> {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Color(0xFF37251B),
+          elevation: 0,
+        ),
+        body: Column(
+          children: [
+            IconButton(
+              icon: Icon(Icons.menu),
+              onPressed: () {
+                Navigator.pushNamed(context, '/menu');
+              },
+            ),
+            Expanded(
+              child: CafeGrid(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class CafeGrid extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return GridView.count(
+      crossAxisCount: 3,
+      children: [
+        CafeButton(),
+        CafeButton(),
+        CafeButton(),
+        // Add more CafeButtons here as needed
+      ],
+    );
+  }
+}
+
+class CafeButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        IconButton(
+          icon: Icon(Icons.local_cafe_rounded),
+          onPressed: () {
+            // Add your button action here
+          },
+        ),
+        SizedBox(
+          width: 48,
+          height: 48,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: Color(0xFFD2C1B1),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
 
 // kafelerin QR kodları sayfası
 class qr extends StatefulWidget {
@@ -712,83 +933,83 @@ class qr extends StatefulWidget {
 
 
 class QrScreen extends State<qr> {
-  final String cafeName="Cafe";
-  final IconData cafeIcon=Icons.local_cafe;
-
-  //QrScreen({required this.cafeName, required this.cafeIcon});
+  final String cafeName = "Cafe";
+  final IconData cafeIcon = Icons.local_cafe_rounded;
 
   @override
   Widget build(BuildContext context) {
-    String customerNumber = "123456";//Random().nextInt(999999).toString(); // rastgele sayı yerine burada bir değişken tanımlanabilir
-    String qrData = "QR Kod Verisi"; // QR kodunun içeriği burada belirlenir
+    String customerNumber = "123456";
+    String qrData = "QR Kod Verisi";
 
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.brown,
-          title: Text(
-            "QR KODUNUZ",
-            style: TextStyle(
-              color: Colors.white,
+      backgroundColor: Color(0xFF37251B), // Set background color to the desired hex code
+      appBar: AppBar(
+        backgroundColor: Color(0xFF37251B), // Set app bar color to the desired hex code
+        elevation: 0, // Set app bar elevation to 0
+        title: const Text(
+          "QR KODUNUZ",
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.menu),
+            onPressed: () {
+              Navigator.pushNamed(context, '/menu');
+            },
+          ),
+        ],
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Center(
+            child: QrImage(
+              data: "QR kodu verisi",
+              version: QrVersions.auto,
+              size: 200.0,
             ),
           ),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.menu),
-              onPressed: () {
-                Navigator.pushNamed(context, '/menu'); // menü sayfasına yönlendirme
-              },
-            ),
-          ],
-        ),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Center(
-              child: QrImage(
-                data: "QR kodu verisi",
-                version: QrVersions.auto,
-                size: 200.0,
+          SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                cafeIcon,
+                color: Colors.black,
+                size: 100.0,
               ),
-            ),
-            SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  cafeIcon,
+              SizedBox(width: 10),
+              Text(
+                cafeName,
+                style: const TextStyle(
                   color: Colors.black,
-                  size: 100.0,
+                  fontSize: 75.0,
                 ),
-                SizedBox(width: 10),
-                Text(
-                  cafeName,
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 75.0,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 20),
-            Text(
-              "Müşteri numaranız",
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 28.0,
               ),
+            ],
+          ),
+          SizedBox(height: 20),
+          const Text(
+            "Müşteri numaranız",
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 28.0,
             ),
-            SizedBox(height: 5),
-            Text(
-              customerNumber,
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 28.0,
-                fontWeight: FontWeight.bold,
-              ),
+          ),
+          SizedBox(height: 5),
+          Text(
+            customerNumber,
+            style: const TextStyle(
+              color: Colors.black,
+              fontSize: 28.0,
+              fontWeight: FontWeight.bold,
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
     );
   }
 }
