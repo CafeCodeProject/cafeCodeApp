@@ -117,7 +117,6 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: appBarColor,
-        title: Text('Giriş Sayfası'),
       ),
 
       backgroundColor: backgroundColor,
@@ -127,10 +126,29 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset(
-                'assets/images/coffee.jpg',
-                width: 200,  // Set the width to 200 pixels
-                height: 200, // Set the height to 200 pixels
+              SizedBox(height: 16),
+              Container(
+                width: 200.0,
+                child: Text(
+                  'CAFECODE',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 24,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              SizedBox(height: 16),
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  Image.asset(
+                    'assets/images/coffee.jpg',
+                    width: 200,
+                    height: 200,
+                  ),
+                ],
               ),
               SizedBox(height: 16),
               Container(
@@ -495,7 +513,7 @@ class _MenuScreenState extends State<MenuScreen> {
                 ),
                 SizedBox(height: 5),
                 Text(
-                  'Musteri No: $userId',
+                  'Hesap No: $userId',
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.white,
