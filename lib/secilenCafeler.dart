@@ -1,4 +1,4 @@
 class SecilenCafeler{
-  List<String> cafeNames = ['A', 'B', 'C', 'D', 'E', 'F'];
+  List<String> cafeNames = ['KediBucks', 'Brewtopia', 'Endülüs', 'Kahvemarşı', 'Bean Buzz', "Cuppa Joe's"];
   static List<String> secilenCafeler = [];
 }

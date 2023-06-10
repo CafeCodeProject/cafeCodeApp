@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:http/http.dart' as http;
@@ -58,7 +60,6 @@ class _LoginPageState extends State<LoginPage> {
       body: jsonEncode(<String, String>{'userMail': email, 'userPassword': password}),
     );
 
-    log(response.body);
     print(jsonDecode(response.body)['token']);
 
     if (jsonDecode(response.body)['token'] != null) {
@@ -229,7 +230,6 @@ class _RegisterScreenState extends State<RegisterPage> {
         'userPassword': password,
       }),
     );
-    log(response.body);
 
     if (jsonDecode(response.body)['token']) {
       showDialog(
@@ -679,6 +679,15 @@ class CafeBulSayfasi extends StatefulWidget {
 class _CafeBulSayfasiState extends State<CafeBulSayfasi> {
   Color backgroundColor = Color(0xFF37251b); // Background color
   String selectedCafe = '';
+  List<String> kampanyalar = [
+    '1 kahve alana 1 tane bedava',
+    'tüm filtre kahvelerde %50 indirim',
+    '100 ₺ üzeri kahve harcamasına 1 kahve hediye'
+  ];
+  String getRandomKampanya() {
+    Random random = Random();
+    return kampanyalar[random.nextInt(kampanyalar.length)];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -789,7 +798,7 @@ class _CafeBulSayfasiState extends State<CafeBulSayfasi> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Cafe Popup'),
-          content: Text('Seçilen Cafe: $cafeName'),
+          content: Text('$cafeName için kampanyalar : ${getRandomKampanya()}'),
           actions: [
             ElevatedButton(
               onPressed: () {
