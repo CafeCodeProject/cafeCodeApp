@@ -677,14 +677,11 @@ class CafeBulSayfasi extends StatefulWidget {
 }
 
 class _CafeBulSayfasiState extends State<CafeBulSayfasi> {
-/*  List<String> cafeNames = ['A', 'B', 'C', 'D', 'E', 'F'];
-  static List<String> secilenCafeler = [];
-  static List<String> get getSecilenCafeler => secilenCafeler;
-*/
+  Color backgroundColor = Color(0xFF37251b); // Background color
+  String selectedCafe = '';
+
   @override
   Widget build(BuildContext context) {
-    Color backgroundColor = Color(0xFF37251b); // Background color
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Cafe Ekle'),
@@ -730,19 +727,27 @@ class _CafeBulSayfasiState extends State<CafeBulSayfasi> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            decoration: BoxDecoration(
-              color: squareColor,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            width: 80,
-            height: 80,
-            child: Padding(
-              padding: EdgeInsets.all(10),
-              child: Icon(
-                icon,
-                size: 60,
-                color: backgroundColor,
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                selectedCafe = cafeName;
+              });
+              showCafePopup(context, cafeName);
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                color: squareColor,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              width: 80,
+              height: 80,
+              child: Padding(
+                padding: EdgeInsets.all(10),
+                child: Icon(
+                  icon,
+                  size: 60,
+                  color: backgroundColor,
+                ),
               ),
             ),
           ),
@@ -777,6 +782,26 @@ class _CafeBulSayfasiState extends State<CafeBulSayfasi> {
       ),
     );
   }
+
+  void showCafePopup(BuildContext context, String cafeName) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Cafe Popup'),
+          content: Text('Seçilen Cafe: $cafeName'),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Kapat'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
 
 // kafelerin QR kodları sayfası
@@ -795,7 +820,7 @@ class QrScreen extends State<qr> {
     String qrData = "QR Kod Verisi";
 
     return Scaffold(
-      backgroundColor: Color(0xFF37251B), // Set background color to the desired hex code
+      backgroundColor: Color(0xFFFFFFFF), // Set background color to the desired hex code
       appBar: AppBar(
         backgroundColor: Color(0xFF37251B), // Set app bar color to the desired hex code
         elevation: 0, // Set app bar elevation to 0
