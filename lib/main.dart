@@ -825,7 +825,14 @@ class QrScreen extends State<qr> {
 
   @override
   Widget build(BuildContext context) {
-    String customerNumber = "123456";
+    int generateRandomNumber() {
+      Random customerNumber = Random();
+      int min = 100000; // Minimum 6-digit number
+      int max = 999999; // Maximum 6-digit number
+
+      // Generate a random number between min and max (inclusive)
+      return min + customerNumber.nextInt(max - min + 1);
+    }
     String qrData = "QR Kod Verisi";
 
     return Scaffold(
@@ -888,7 +895,7 @@ class QrScreen extends State<qr> {
           ),
           SizedBox(height: 5),
           Text(
-            customerNumber,
+            generateRandomNumber().toString(),
             style: const TextStyle(
               color: Colors.black,
               fontSize: 28.0,
