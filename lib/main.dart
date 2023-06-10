@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'dart:developer';
+import 'secilenCafeler.dart';
 
 void main() {
   runApp(MyApp());
@@ -333,6 +334,7 @@ class Cafelerim extends StatefulWidget {
 }
 
 class _CafelerimState extends State<Cafelerim> {
+
   @override
   Widget build(BuildContext context) {
     Color backgroundColor = Color(0xFF37251b); // Background color
@@ -358,9 +360,9 @@ class _CafelerimState extends State<Cafelerim> {
           mainAxisSpacing: 12,
         ),
         padding: EdgeInsets.all(10),
-        itemCount: 6, // Replace with the actual number of cafes
+        itemCount: SecilenCafeler.secilenCafeler.length, // Replace with the actual number of cafes
         itemBuilder: (BuildContext context, int index) {
-          String cafeName = 'Cafe ${index + 1}'; // Replace with the actual cafe names
+          String cafeName = SecilenCafeler.secilenCafeler[index]; // Replace with the actual cafe names
           return buildCafeIcon(Icons.local_cafe_rounded, '4f3e2e', cafeName);
         },
       ),
@@ -675,6 +677,10 @@ class CafeBulSayfasi extends StatefulWidget {
 }
 
 class _CafeBulSayfasiState extends State<CafeBulSayfasi> {
+/*  List<String> cafeNames = ['A', 'B', 'C', 'D', 'E', 'F'];
+  static List<String> secilenCafeler = [];
+  static List<String> get getSecilenCafeler => secilenCafeler;
+*/
   @override
   Widget build(BuildContext context) {
     Color backgroundColor = Color(0xFF37251b); // Background color
@@ -702,7 +708,7 @@ class _CafeBulSayfasiState extends State<CafeBulSayfasi> {
         padding: EdgeInsets.all(10),
         itemCount: 6, // Replace with the actual number of cafes
         itemBuilder: (BuildContext context, int index) {
-          String cafeName = 'Cafe ${index + 1}'; // Replace with the actual cafe names
+          String cafeName = SecilenCafeler().cafeNames[index];
           return buildCafeIcon(Icons.local_cafe_rounded, '4f3e2e', cafeName);
         },
       ),
@@ -763,9 +769,9 @@ class _CafeBulSayfasiState extends State<CafeBulSayfasi> {
               minimumSize: Size(80.0, 40.0),
             ),
             onPressed: () {
-              // Add your code for the 'cafe ekle' button here
+              SecilenCafeler.secilenCafeler.add(cafeName);
             },
-            child: Text('Cafe Ekle'),
+            child: Text("Cafe'yi Ekle"),
           ),
         ],
       ),
