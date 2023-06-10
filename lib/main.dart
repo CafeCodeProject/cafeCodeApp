@@ -33,7 +33,6 @@ class MyApp extends StatelessWidget {
         '/menu':(context)=>MenuScreen(),
         '/profil':(context)=>ProfilePage(),
         '/cafebul':(context)=>CafeBulSayfasi(),
-        '/cafeekleme':(context)=>CafeEklemeSayfasi()
       },
     );
   }
@@ -65,6 +64,7 @@ class _LoginPageState extends State<LoginPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('userId', jsonDecode(response.body)['user']['_id']);
       await prefs.setString('userName', jsonDecode(response.body)['user']['userName']);
+      await prefs.setString('userSurname', jsonDecode(response.body)['user']['userSurname']);
       await prefs.setString('userMail', jsonDecode(response.body)['user']['userMail']);
 
       Navigator.pushReplacement(
@@ -95,17 +95,17 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    Color backgroundColor = Color(int.parse('0xFF37251b'));
+    Color backgroundColor = Color(0xFF37251b);
     Color appBarColor = backgroundColor;
-    Color squareColor = Color(int.parse('0xFF4F3E2E'));
+    Color squareColor = Color(0xFF4F3E2E);
 
     final buttonStyle = ElevatedButton.styleFrom(
-      primary: Color(int.parse('0xFF505050')),
+      primary: Color(0xFF505050),
       onPrimary: Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12.0),
         side: BorderSide(
-          color: Color(int.parse('0xFF4f3e2e')),
+          color: Color(0xFF4f3e2e),
           width: 4.0,
         ),
       ),
@@ -115,10 +115,9 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: appBarColor,
-        leading: Image.asset('cafecode.png'), // Add the image asset here
         title: Text('Giriş Sayfası'),
       ),
-      
+
       backgroundColor: backgroundColor,
       body: Center(
         child: Padding(
@@ -126,6 +125,12 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Image.asset(
+                'assets/images/coffee.jpg',
+                width: 200,  // Set the width to 200 pixels
+                height: 200, // Set the height to 200 pixels
+              ),
+              SizedBox(height: 16),
               Container(
                 width: 200.0,
                 child: TextField(
@@ -175,11 +180,11 @@ class _LoginPageState extends State<LoginPage> {
                   child: Text('Kayıt Ol'),
                   style: TextButton.styleFrom(
                     primary: Colors.white,
-                    backgroundColor: Color(int.parse('0xFF505050')),
+                    backgroundColor: Color(0xFF505050),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12.0),
                       side: BorderSide(
-                        color: Color(int.parse('0xFFD2C1B1')),
+                        color: Color(0xFFD2C1B1),
                         width: 4.0,
                       ),
                     ),
@@ -266,7 +271,7 @@ class _RegisterScreenState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    Color backgroundColor = Color(int.parse('0xFF37251b')); // Background color
+    Color backgroundColor = Color(0xFF37251b); // Background color
     Color appBarColor = backgroundColor; // App bar color
 
     return Scaffold(
@@ -330,7 +335,7 @@ class Cafelerim extends StatefulWidget {
 class _CafelerimState extends State<Cafelerim> {
   @override
   Widget build(BuildContext context) {
-    Color backgroundColor = Color(int.parse('0xFF37251b')); // Background color
+    Color backgroundColor = Color(0xFF37251b); // Background color
 
     return Scaffold(
       appBar: AppBar(
@@ -345,20 +350,20 @@ class _CafelerimState extends State<Cafelerim> {
         ),
       ),
       backgroundColor: backgroundColor,
-        body: GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            childAspectRatio: 1.0,
-            crossAxisSpacing: 6,
-            mainAxisSpacing: 12,
-          ),
-          padding: EdgeInsets.all(10),
-          itemCount: 6, // Replace with the actual number of cafes
-          itemBuilder: (BuildContext context, int index) {
-            String cafeName = 'Cafe ${index + 1}'; // Replace with the actual cafe names
-            return buildCafeIcon(Icons.local_cafe_rounded, '4f3e2e', cafeName);
-          },
+      body: GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          childAspectRatio: 1.0,
+          crossAxisSpacing: 6,
+          mainAxisSpacing: 12,
         ),
+        padding: EdgeInsets.all(10),
+        itemCount: 6, // Replace with the actual number of cafes
+        itemBuilder: (BuildContext context, int index) {
+          String cafeName = 'Cafe ${index + 1}'; // Replace with the actual cafe names
+          return buildCafeIcon(Icons.local_cafe_rounded, '4f3e2e', cafeName);
+        },
+      ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () {
@@ -370,7 +375,7 @@ class _CafelerimState extends State<Cafelerim> {
 
   Widget buildCafeIcon(IconData icon, String hexColor, String cafeName) {
     Color squareColor = Color(int.parse('0xFF$hexColor'));
-    Color backgroundColor = Color(int.parse('0xFF37251b'));
+    Color backgroundColor = Color(0xFF37251b);
 
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -455,7 +460,7 @@ class _MenuScreenState extends State<MenuScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Color backgroundColor = Color(int.parse('0xFF37251b')); // Background color
+    Color backgroundColor = Color(0xFF37251b); // Background color
 
     return Drawer(
       backgroundColor: backgroundColor,
@@ -544,17 +549,6 @@ class _MenuScreenState extends State<MenuScreen> {
             ),
             onTap: () {
               Navigator.pushNamed(context, '/cafebul');
-            },
-          ),
-          ListTile(
-            title: Text(
-              'CAFE EKLE',
-              style: TextStyle(
-                color: Colors.white,
-              ),
-            ),
-            onTap: () {
-              Navigator.pushNamed(context, '/cafeekleme');
             },
           ),
           ListTile(
@@ -674,183 +668,6 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 }
 
-//cafe ekleme sayfasi
-class CafeEklemeSayfasi extends StatefulWidget {
-  @override
-  CafeEklemeSayfasiState createState() => CafeEklemeSayfasiState();
-}
-
-class CafeEklemeSayfasiState extends State<CafeEklemeSayfasi> {
-  String cafeName = '';
-  String cafeMail = '';
-  String cafePassword = '';
-
-  final TextEditingController cafeNameController = TextEditingController();
-  final TextEditingController cafePasswordController = TextEditingController();
-  final TextEditingController cafeMailController = TextEditingController();
-
-  Future<void> createCafe(BuildContext context) async {
-    final String cafeName = cafeNameController.text;
-    final String cafePassword = cafePasswordController.text;
-    final String cafeMail = cafeMailController.text;
-
-    final response = await http.post(
-      Uri.parse('http://localhost:3000/api/auth/coffeSignup'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(
-          <String, String>{'coffeName': cafeName, 'coffePassword': cafePassword, 'coffeMail': cafeMail}),
-    );
-
-    log(response.body);
-
-    if (jsonDecode(response.body)['token']) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Başarılı'),
-            content: Text('Cafe başarıyla oluşturuldu.'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('Tamam'),
-              ),
-            ],
-          );
-        },
-      );
-    } else {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Hata'),
-            content: Text('Cafe oluşturulamadı'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('Tamam'),
-              ),
-            ],
-          );
-        },
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    Color backgroundColor = Color(int.parse('0xFF37251b')); // Background color
-    Color appBarColor = backgroundColor; // App bar color
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Cafe Oluştur'),
-        backgroundColor: appBarColor,
-      ),
-      backgroundColor: backgroundColor,
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(
-              height: 50.0,
-              decoration: BoxDecoration(
-                color: Color(0xFF4F3E2E),
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              child: TextField(
-                controller: cafeNameController,
-                decoration: InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
-                  labelText: 'Cafe İsmi',
-                  border: InputBorder.none,
-                ),
-              ),
-            ),
-            SizedBox(height: 16),
-            Container(
-              height: 50.0,
-              decoration: BoxDecoration(
-                color: Color(0xFF4F3E2E),
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              child: TextField(
-                controller: cafeMailController,
-                decoration: InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
-                  labelText: 'Cafe Mail',
-                  border: InputBorder.none,
-                ),
-              ),
-            ),
-            SizedBox(height: 16),
-            Container(
-              height: 50.0,
-              decoration: BoxDecoration(
-                color: Color(0xFF4F3E2E),
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              child: TextField(
-                controller: cafePasswordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
-                  labelText: 'Cafe Şifre',
-                  border: InputBorder.none,
-                ),
-              ),
-            ),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => createCafe(context),
-              child: Text('Cafe Oluştur'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class CafeIcon extends StatelessWidget {
-  final String ad;
-
-  const CafeIcon({Key? key, required this.ad}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.pushNamed(context, '/qr');
-      },
-      child: Column(
-        children: [
-          Icon(
-            Icons.local_cafe_rounded,
-            size: 64,
-            color: Colors.white,
-          ),
-          SizedBox(height: 20),
-          Text(
-            ad,
-            style: const TextStyle(
-              color: Colors.white,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 //cafe bul sayfasi
 class CafeBulSayfasi extends StatefulWidget {
   @override
@@ -860,67 +677,98 @@ class CafeBulSayfasi extends StatefulWidget {
 class _CafeBulSayfasiState extends State<CafeBulSayfasi> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Color(0xFF37251B),
-          elevation: 0,
+    Color backgroundColor = Color(0xFF37251b); // Background color
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Cafe Ekle'),
+        backgroundColor: backgroundColor, // Set the app bar color here
+        elevation: 0, // Set the elevation to 0 to remove the shadow
+        leading: IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () {
+            Navigator.pushNamed(context, '/menu');
+          },
         ),
-        body: Column(
-          children: [
-            IconButton(
-              icon: Icon(Icons.menu),
-              onPressed: () {
-                Navigator.pushNamed(context, '/menu');
-              },
-            ),
-            Expanded(
-              child: CafeGrid(),
-            ),
-          ],
+      ),
+      backgroundColor: backgroundColor,
+      body: GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          childAspectRatio: 1.0,
+          crossAxisSpacing: 6,
+          mainAxisSpacing: 12,
         ),
+        padding: EdgeInsets.all(10),
+        itemCount: 6, // Replace with the actual number of cafes
+        itemBuilder: (BuildContext context, int index) {
+          String cafeName = 'Cafe ${index + 1}'; // Replace with the actual cafe names
+          return buildCafeIcon(Icons.local_cafe_rounded, '4f3e2e', cafeName);
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
+        onPressed: () {
+          Navigator.pushNamed(context, '/cafebul');
+        },
       ),
     );
   }
-}
 
-class CafeGrid extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return GridView.count(
-      crossAxisCount: 3,
-      children: [
-        CafeButton(),
-        CafeButton(),
-        CafeButton(),
-        // Add more CafeButtons here as needed
-      ],
-    );
-  }
-}
+  Widget buildCafeIcon(IconData icon, String hexColor, String cafeName) {
+    Color squareColor = Color(int.parse('0xFF$hexColor'));
+    Color backgroundColor = Color(0xFF37251b);
 
-class CafeButton extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        IconButton(
-          icon: Icon(Icons.local_cafe_rounded),
-          onPressed: () {
-            // Add your button action here
-          },
-        ),
-        SizedBox(
-          width: 48,
-          height: 48,
-          child: DecoratedBox(
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
             decoration: BoxDecoration(
-              color: Color(0xFFD2C1B1),
+              color: squareColor,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            width: 80,
+            height: 80,
+            child: Padding(
+              padding: EdgeInsets.all(10),
+              child: Icon(
+                icon,
+                size: 60,
+                color: backgroundColor,
+              ),
             ),
           ),
-        ),
-      ],
+          const SizedBox(height: 10),
+          Text(
+            cafeName,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+            ),
+          ),
+          const SizedBox(height: 10),
+          ElevatedButton(
+            style: TextButton.styleFrom(
+              primary: Colors.white,
+              backgroundColor: Color(0xFF505050),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.0),
+                side: BorderSide(
+                  color: Color(0xFF4f3e2e),
+                  width: 4.0,
+                ),
+              ),
+              minimumSize: Size(80.0, 40.0),
+            ),
+            onPressed: () {
+              // Add your code for the 'cafe ekle' button here
+            },
+            child: Text('Cafe Ekle'),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -930,7 +778,6 @@ class qr extends StatefulWidget {
   @override
   QrScreen createState() => QrScreen();
 }
-
 
 class QrScreen extends State<qr> {
   final String cafeName = "Cafe";
